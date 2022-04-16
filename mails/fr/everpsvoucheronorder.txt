@@ -1,0 +1,15 @@
+[{shop_name}]({shop_url})
+Bonjour {firstname} {lastname},
+
+Afin de vous souhaiter la bienvenue, nous avons décidé de vous offir un bon de réduction de {voucher_amount} pour un minimum d'achat de {mini_amount}
+
+
+Voici le code de réduction : {voucher_num}
+
+Copiez-collez ce code dans le panier lors de vos prochains achats avant de régler la commande.
+
+
+
+Utilisable exclusivement sur [{shop_name}]({shop_url}), valable jusqu'au {voucher_date}.
+
+[{shop_name}]({shop_url})
