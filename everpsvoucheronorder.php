@@ -23,7 +23,7 @@ class Everpsvoucheronorder extends Module
     {
         $this->name = 'everpsvoucheronorder';
         $this->tab = 'pricing_promotion';
-        $this->version = '2.2.1';
+        $this->version = '2.2.2';
         $this->author = 'Team Ever';
         $this->need_instance = 0;
         $this->bootstrap = true;
@@ -493,7 +493,8 @@ class Everpsvoucheronorder extends Module
             (int)$customer->id,
             true
         );
-        if (count($previous_orders) >= 1) {
+        // We should test if superior than 2, as current order is counted
+        if (count($previous_orders) >= 2) {
             return;
         }
         $exists = EverPsVoucherOnOrderClass::getByCustomer(
