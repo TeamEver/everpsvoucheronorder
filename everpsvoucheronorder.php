@@ -23,7 +23,7 @@ class Everpsvoucheronorder extends Module
     {
         $this->name = 'everpsvoucheronorder';
         $this->tab = 'pricing_promotion';
-        $this->version = '2.2.2';
+        $this->version = '2.2.3';
         $this->author = 'Team Ever';
         $this->need_instance = 0;
         $this->bootstrap = true;
@@ -494,7 +494,9 @@ class Everpsvoucheronorder extends Module
             true
         );
         // We should test if superior than 2, as current order is counted
-        if (count($previous_orders) >= 2) {
+        if (count($previous_orders) >= 2
+            && (bool)Configuration::get('ORDERVOUCHER_ENABLE') === true
+        ) {
             return;
         }
         $exists = EverPsVoucherOnOrderClass::getByCustomer(
@@ -590,6 +592,7 @@ class Everpsvoucheronorder extends Module
         if ($contains_categories) {
             $cart_rule->product_restriction = 1;
         }
+        $cart_rule->minimum_amount_currency = (int)Configuration::get('PS_CURRENCY_DEFAULT');
         $cart_rule->add();
 
         //Restrict cartRules with categories
