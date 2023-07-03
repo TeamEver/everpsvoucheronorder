@@ -24,23 +24,23 @@ class EverPsVoucherOnOrderClass extends ObjectModel
                 'type' => self::TYPE_INT,
                 'lang' => false,
                 'validate' => 'isunsignedInt',
-                'required' => true
+                'required' => true,
             ),
             'id_order' => array(
                 'type' => self::TYPE_INT,
                 'lang' => false,
                 'validate' => 'isunsignedInt',
-                'required' => true
+                'required' => true,
             ),
             'email' => array(
                 'type' => self::TYPE_STRING,
                 'lang' => false,
-                'validate' => 'isEmail'
+                'validate' => 'isEmail',
             ),
             'voucher_code' => array(
                 'type' => self::TYPE_STRING,
                 'lang' => false,
-                'validate' => 'isString'
+                'validate' => 'isString',
             ),
         )
     );
@@ -51,7 +51,7 @@ class EverPsVoucherOnOrderClass extends ObjectModel
         $sql->select('id_everpsvoucheronorder');
         $sql->from('everpsvoucheronorder');
         $sql->where(
-            'id_customer = "'.(int)$id_customer.'"'
+            'id_customer = "' . (int) $id_customer . '"'
         );
         return Db::getInstance()->getValue($sql);
     }

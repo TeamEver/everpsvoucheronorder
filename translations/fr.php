@@ -9,6 +9,11 @@ $_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_f4f70727dc34561
 $_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_7bdeecdbd793e192698111593cceb5af'] = 'Autoriser la création de code promo sur toutes les commandes';
 $_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_e333e84882e182a1e33b87d152ed9f9e'] = 'Générera un code promo pour chaque commande passée sans restriction';
 $_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_e9d53780f7fe7e899cb834d4f309666f'] = 'Sinon les codes promos seront générés uniquement sur la première commande';
+$_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_00d23a76e43b46dae9ec7aa9dcbebb32'] = 'Activer';
+$_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_b9f5c797ebbf55adccdd8539a65a0241'] = 'Désactiver';
+$_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_9f1ad77f8a01d8b6e95ef0e6eeb3fb90'] = 'Envoyer les codes de réduction par e-mail';
+$_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_17d134e2d64efeec5619f24d8676e276'] = 'Enverra le code de bon généré au client par e-mail';
+$_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_bb073cd1b693bce14f867984b8074629'] = 'Sinon aucun email ne sera envoyé';
 $_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_958351561328e593203d7a4300d57b10'] = 'Préfix du code du bon de réduction';
 $_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_2307f0e98ebcb39c30d6b7ade3c1a268'] = 'Merci de saisir le préfixe du code promo';
 $_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_d38b1f33bbec6702fb58ce2f90ab6e3e'] = 'Le code sera automatiquement généré';
@@ -17,11 +22,12 @@ $_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_d8794e6ad625360
 $_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_39ee845708a396f9e71f962ef98093ef'] = 'Montant de la réduction';
 $_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_8405a30d9a9a587c5d9cf93da4c5b2a8'] = 'Merci de saisir le montant de la réduction';
 $_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_9489334c4c16cd2a0e7a551ffaa5fb6c'] = 'Sera utilisé lors de la génération du code promo';
+$_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_ae5b650e6b9f40413ab2018e0bc3c288'] = 'Date limite pour les bons de réduction';
+$_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_924824fceb1485d0a4be96ed91e30e60'] = 'Veuillez définir une date limite pour le bon de réduction';
+$_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_9cc95fda6dcaec179f34bbcb91eedc85'] = 'Les bons ne seront pas créés après cette date';
 $_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_1505d189a306cba34cd8639000e5cb1c'] = 'La réduction est basée sur le total TTC des produits de la dernière commande passée';
 $_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_344743b3f44072de030857d8ff58cb79'] = 'Générera un code promo basé sur le total TTC des produits de la dernière commande passée';
 $_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_f39ef305a63ed7fb29c703b9760c2dd4'] = 'Auquel cas le type de réduction DOIT être en montant et non en pourcentage';
-$_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_00d23a76e43b46dae9ec7aa9dcbebb32'] = 'Activer';
-$_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_b9f5c797ebbf55adccdd8539a65a0241'] = 'Désactiver';
 $_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_d9f2310eef1a57aeb3a2f990037b3131'] = 'Réduction en pourcentage ou en montant';
 $_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_55fc7b3ddbd4a3c81ac589c20205f1e6'] = 'Mettez Non pour une réduction en montant (notamment si la réduction est basée sur la dernière commande)';
 $_MODULE['<{everpsvoucheronorder}prestashop>everpsvoucheronorder_b5ccd94d9304b7f2d0865f84aaa9ce0c'] = 'Le code promo est-il un pourcentage ou un montant ?';

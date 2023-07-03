@@ -11,27 +11,29 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-require_once _PS_MODULE_DIR_.'everpsvoucheronorder/models/EverPsVoucherOnOrderClass.php';
+require_once _PS_MODULE_DIR_ . 'everpsvoucheronorder/models/EverPsVoucherOnOrderClass.php';
 
 class Everpsvoucheronorder extends Module
 {
     private $html;
-    private $postErrors = array();
-    private $postSuccess = array();
+    private $postErrors = [];
+    private $postSuccess = [];
 
     public function __construct()
     {
         $this->name = 'everpsvoucheronorder';
         $this->tab = 'pricing_promotion';
-        $this->version = '2.2.3';
+        $this->version = '2.2.4';
         $this->author = 'Team Ever';
         $this->need_instance = 0;
         $this->bootstrap = true;
         parent::__construct();
         $this->displayName = $this->l('Ever PS Voucher on first order');
         $this->description = $this->l('Automatically create a voucher on customer first order');
-        $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
-        $this->isSeven = Tools::version_compare(_PS_VERSION_, '1.7', '>=') ? true : false;
+        $this->ps_versions_compliancy = [
+            'min' => '1.6',
+            'max' => _PS_VERSION_,
+        ];
     }
 
     public function install()
@@ -52,7 +54,7 @@ class Everpsvoucheronorder extends Module
         Configuration::updateValue('ORDERVOUCHER_AMOUNT', 5);
         Configuration::updateValue('ORDERVOUCHER_PERCENT', 0);
 
-        $voucherPrefix = array();
+        $voucherPrefix = [];
         foreach (Language::getLanguages(false) as $lang) {
             $voucherPrefix[$lang['id_lang']] = 'WELCOME';
         }
@@ -62,7 +64,7 @@ class Everpsvoucheronorder extends Module
             true
         );
 
-        $voucherDetails = array();
+        $voucherDetails = [];
         foreach (Language::getLanguages(false) as $lang) {
             $voucherDetails[$lang['id_lang']] = $this->l('Welcome voucher');
         }
@@ -93,7 +95,7 @@ class Everpsvoucheronorder extends Module
 
     public function getContent()
     {
-        if (((bool)Tools::isSubmit('submitEverpsvoucheronorderModule')) == true) {
+        if ((bool) Tools::isSubmit('submitEverpsvoucheronorderModule') == true) {
             $this->postValidation();
 
             if (!count($this->postErrors)) {
@@ -119,16 +121,15 @@ class Everpsvoucheronorder extends Module
             'image_dir' => $this->_path,
         ));
 
-        $this->html .= $this->context->smarty->fetch($this->local_path.'views/templates/admin/header.tpl');
+        $this->html .= $this->context->smarty->fetch($this->local_path . 'views/templates/admin/header.tpl');
         $this->html .= $this->renderForm();
-        $this->html .= $this->context->smarty->fetch($this->local_path.'views/templates/admin/footer.tpl');
+        $this->html .= $this->context->smarty->fetch($this->local_path . 'views/templates/admin/footer.tpl');
         return $this->html;
     }
 
     protected function renderForm()
     {
         $helper = new HelperForm();
-
         $helper->show_toolbar = false;
         $helper->table = $this->table;
         $helper->module = $this;
@@ -136,36 +137,39 @@ class Everpsvoucheronorder extends Module
         $helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG', 0);
         $helper->identifier = $this->identifier;
         $helper->submit_action = 'submitEverpsvoucheronorderModule';
-        $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false)
-            .'&configure='.$this->name.'&tab_module='.$this->tab.'&module_name='.$this->name;
+        $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false) . '&configure=' . $this->name . '&tab_module=' . $this->tab . '&module_name=' . $this->name;
         $helper->token = Tools::getAdminTokenLite('AdminModules');
         $helper->tpl_vars = array(
             'fields_value' => $this->getConfigFormValues(),
             'languages' => $this->context->controller->getLanguages(),
             'id_language' => $this->context->language->id,
         );
-
         return $helper->generateForm(array($this->getConfigForm()));
     }
 
     protected function getConfigForm()
     {
         $currency = new Currency(
-            (int)Configuration::get('PS_CURRENCY_DEFAULT')
+            (int) Configuration::get('PS_CURRENCY_DEFAULT')
         );
         $zones = Zone::getZones(true);
-        $selected_cat = json_decode(
-            Configuration::get(
-                'ORDERVOUCHER_CATEGORY'
-            )
+        $selectedCats = Configuration::get(
+            'ORDERVOUCHER_CATEGORY'
         );
+        if ($selectedCats) {
+            $selectedCats = json_decode(
+                $selectedCats
+            );
+        } else {
+            $selectedCats = [];
+        }
 
-        if (!is_array($selected_cat)) {
-            $selected_cat = array($selected_cat);
+        if (!is_array($selectedCats)) {
+            $selectedCats = [$selectedCats];
         }
 
         $tree = array(
-            'selected_categories' => $selected_cat,
+            'selectedCatsegories' => $selectedCats,
             'use_search' => true,
             'use_checkbox' => true,
             'id' => 'id_category_tree',
@@ -174,8 +178,8 @@ class Everpsvoucheronorder extends Module
         return array(
             'form' => array(
                 'legend' => array(
-                'title' => $this->l('Settings'),
-                'icon' => 'icon-cogs',
+                    'title' => $this->l('Settings'),
+                    'icon' => 'icon-cogs',
                 ),
                 'input' => array(
                     array(
@@ -186,10 +190,14 @@ class Everpsvoucheronorder extends Module
                         'name' => 'ORDERVOUCHER_ENABLE',
                         'values' => array(
                             array(
+                                'id' => 'active_on',
                                 'value' => 1,
+                                'label' => $this->l('Enabled'),
                             ),
                             array(
+                                'id' => 'active_off',
                                 'value' => 0,
+                                'label' => $this->l('Disabled'),
                             ),
                         ),
                     ),
@@ -201,10 +209,14 @@ class Everpsvoucheronorder extends Module
                         'name' => 'ORDERVOUCHER_MAIL',
                         'values' => array(
                             array(
+                                'id' => 'active_on',
                                 'value' => 1,
+                                'label' => $this->l('Enabled'),
                             ),
                             array(
+                                'id' => 'active_off',
                                 'value' => 0,
+                                'label' => $this->l('Disabled'),
                             ),
                         ),
                     ),
@@ -251,12 +263,12 @@ class Everpsvoucheronorder extends Module
                             array(
                                 'id' => 'active_on',
                                 'value' => 1,
-                                'label' => $this->l('Enabled')
+                                'label' => $this->l('Enabled'),
                             ),
                             array(
                                 'id' => 'active_off',
                                 'value' => 0,
-                                'label' => $this->l('Disabled')
+                                'label' => $this->l('Disabled'),
                             )
                         )
                     ),
@@ -271,12 +283,12 @@ class Everpsvoucheronorder extends Module
                             array(
                                 'id' => 'active_on',
                                 'value' => 1,
-                                'label' => $this->l('Enabled')
+                                'label' => $this->l('Enabled'),
                             ),
                             array(
                                 'id' => 'active_off',
                                 'value' => 0,
-                                'label' => $this->l('Disabled')
+                                'label' => $this->l('Disabled'),
                             )
                         )
                     ),
@@ -300,12 +312,12 @@ class Everpsvoucheronorder extends Module
                             array(
                                 'id' => 'active_on',
                                 'value' => 1,
-                                'label' => $this->l('Enabled')
+                                'label' => $this->l('Enabled'),
                             ),
                             array(
                                 'id' => 'active_off',
                                 'value' => 0,
-                                'label' => $this->l('Disabled')
+                                'label' => $this->l('Disabled'),
                             )
                         )
                     ),
@@ -343,26 +355,6 @@ class Everpsvoucheronorder extends Module
 
     protected function getConfigFormValues()
     {
-        $voucherDetails = array();
-        $voucherPrefix = array();
-
-        foreach (Language::getLanguages(false) as $lang) {
-            $voucherDetails[$lang['id_lang']] = (Tools::getValue(
-                'ORDERVOUCHER_DETAILS_'
-                .$lang['id_lang']
-            ))
-            ? Tools::getValue(
-                'ORDERVOUCHER_DETAILS_'.$lang['id_lang']
-            ) : '';
-            $voucherPrefix[$lang['id_lang']] = (Tools::getValue(
-                'ORDERVOUCHER_DETAILS_'
-                .$lang['id_lang']
-            ))
-            ? Tools::getValue(
-                'ORDERVOUCHER_DETAILS_'.$lang['id_lang']
-            ) : '';
-        }
-
         return array(
             'ORDERVOUCHER_DATE_LIMIT' => Configuration::get('ORDERVOUCHER_DATE_LIMIT'),
             'ORDERVOUCHER_LAST_TOTAL' => Configuration::get('ORDERVOUCHER_LAST_TOTAL'),
@@ -373,10 +365,8 @@ class Everpsvoucheronorder extends Module
             'ORDERVOUCHER_ENABLE' => Configuration::get('ORDERVOUCHER_ENABLE'),
             'ORDERVOUCHER_MAIL' => Configuration::get('ORDERVOUCHER_MAIL'),
             'ORDERVOUCHER_ZONES_TAX[]' => json_decode(Configuration::get('ORDERVOUCHER_ZONES_TAX')),
-            'ORDERVOUCHER_DETAILS' => (!empty($voucherDetails[(int)Configuration::get('PS_LANG_DEFAULT')]))
-            ? $voucherDetails : Configuration::getInt('ORDERVOUCHER_DETAILS'),
-            'ORDERVOUCHER_PREFIX' => (!empty($voucherPrefix[(int)Configuration::get('PS_LANG_DEFAULT')]))
-            ? $voucherPrefix : Configuration::getInt('ORDERVOUCHER_PREFIX'),
+            'ORDERVOUCHER_DETAILS' => Configuration::getConfigInMultipleLangs('ORDERVOUCHER_DETAILS'),
+            'ORDERVOUCHER_PREFIX' => Configuration::getConfigInMultipleLangs('ORDERVOUCHER_PREFIX'),
             'ORDERVOUCHER_CATEGORY' => Tools::getValue(
                 'ORDERVOUCHER_CATEGORY',
                 json_decode(
@@ -406,14 +396,14 @@ class Everpsvoucheronorder extends Module
 
     protected function postProcess()
     {
-        $voucherDetails = array();
+        $voucherDetails = [];
         foreach (Language::getLanguages(false) as $lang) {
             $voucherDetails[$lang['id_lang']] = (Tools::getValue(
                 'ORDERVOUCHER_DETAILS_'
-                .$lang['id_lang']
+                . $lang['id_lang']
             ))
             ? Tools::getValue(
-                'ORDERVOUCHER_DETAILS_'.$lang['id_lang']
+                'ORDERVOUCHER_DETAILS_' . $lang['id_lang']
             ) : '';
         }
         Configuration::updateValue(
@@ -421,14 +411,14 @@ class Everpsvoucheronorder extends Module
             $voucherDetails,
             true
         );
-        $voucherPrefix = array();
+        $voucherPrefix = [];
         foreach (Language::getLanguages(false) as $lang) {
             $voucherPrefix[$lang['id_lang']] = (Tools::getValue(
                 'ORDERVOUCHER_PREFIX_'
-                .$lang['id_lang']
+                . $lang['id_lang']
             ))
             ? Tools::getValue(
-                'ORDERVOUCHER_PREFIX_'.$lang['id_lang']
+                'ORDERVOUCHER_PREFIX_' . $lang['id_lang']
             ) : '';
         }
         Configuration::updateValue(
@@ -482,20 +472,20 @@ class Everpsvoucheronorder extends Module
 
     public function hookActionAdminControllerSetMedia()
     {
-        $this->context->controller->addCss($this->_path.'views/css/ever.css');
+        $this->context->controller->addCss($this->_path . 'views/css/ever.css');
     }
 
     public function hookActionValidateOrder($params)
     {
         $order = $params['order'];
-        $customer = new Customer((int)$order->id_customer);
+        $customer = new Customer((int) $order->id_customer);
         $previous_orders = Order::getCustomerOrders(
-            (int)$customer->id,
+            (int) $customer->id,
             true
         );
         // We should test if superior than 2, as current order is counted
         if (count($previous_orders) >= 2
-            && (bool)Configuration::get('ORDERVOUCHER_ENABLE') === true
+            && (bool) Configuration::get('ORDERVOUCHER_ENABLE') === true
         ) {
             return;
         }
@@ -514,8 +504,8 @@ class Everpsvoucheronorder extends Module
         if ($today_time > $expire_time) {
             return;
         }
-        if ((bool)Configuration::get('ORDERVOUCHER_ENABLE') === false) {
-            if ((int)$exists <= 0) {
+        if ((bool) Configuration::get('ORDERVOUCHER_ENABLE') === false) {
+            if ((int) $exists <= 0) {
                 $this->createFirstVoucher($customer->id, $order->id);
             }
         } else {
@@ -525,24 +515,24 @@ class Everpsvoucheronorder extends Module
 
     public function createFirstVoucher($id_customer, $id_order)
     {
-        $description = Configuration::getInt('ORDERVOUCHER_DETAILS');
-        $prefixx = Configuration::getInt('ORDERVOUCHER_PREFIX');
-        $prefix = $prefixx[(int)$this->context->language->id];
+        $description = Configuration::getConfigInMultipleLangs('ORDERVOUCHER_DETAILS');
+        $prefixx = Configuration::getConfigInMultipleLangs('ORDERVOUCHER_PREFIX');
+        $prefix = $prefixx[(int) $this->context->language->id];
         $allowedTaxZones = json_decode(Configuration::get('ORDERVOUCHER_ZONES_TAX'));
-        $customer = new Customer((int)$id_customer);
-        $customerCountry = $customer->getCurrentCountry((int)$customer->id);
-        $country = new Country((int)$customerCountry);
-        $last_order = new Order((int)$id_order);
+        $customer = new Customer((int) $id_customer);
+        $customerCountry = $customer->getCurrentCountry((int) $customer->id);
+        $country = new Country((int) $customerCountry);
+        $last_order = new Order((int) $id_order);
         /* Generate a voucher code */
         $voucher_code = null;
 
         do {
-            $voucher_code = $prefix.''.rand(1000, 100000);
+            $voucher_code = $prefix . '' . rand(1000, 100000);
         } while (CartRule::cartRuleExists($voucher_code));
 
         // Voucher creation and affectation to the customer
         $cart_rule = new CartRule();
-        $cart_rule->id_customer = (int)$customer->id;
+        $cart_rule->id_customer = (int) $customer->id;
         $cart_rule->date_from = date('Y-m-d H:i:s');
         $cart_rule->date_to = date(
             'Y-m-d H:i:s',
@@ -554,21 +544,21 @@ class Everpsvoucheronorder extends Module
         $cart_rule->code = $voucher_code;
         $cart_rule->cart_rule_restriction = 1;
         // $cart_rule->description = $description[(int)$this->context->language->id];
-        $cart_rule->minimum_amount = (float)Configuration::get('ORDERVOUCHER_MINIMAL');
+        $cart_rule->minimum_amount = (float) Configuration::get('ORDERVOUCHER_MINIMAL');
         // First calculate percent for voucher based on last order total
         $last_cart = new Cart(
-            (int)$last_order->id_cart
+            (int) $last_order->id_cart
         );
         $last_order_total = Cart::getTotalCart(
-            (int)$last_order->id_cart,
+            (int) $last_order->id_cart,
             false,
             Cart::BOTH_WITHOUT_SHIPPING
         );
-        $percent_rule = (float)$last_order_total * Configuration::get('ORDERVOUCHER_AMOUNT') / 100;
-        if ((int)Configuration::get('ORDERVOUCHER_PERCENT')) {
+        $percent_rule = (float) $last_order_total * Configuration::get('ORDERVOUCHER_AMOUNT') / 100;
+        if ((int) Configuration::get('ORDERVOUCHER_PERCENT')) {
             $cart_rule->reduction_percent = Configuration::get('ORDERVOUCHER_AMOUNT');
         } else {
-            if ((bool)Configuration::get('ORDERVOUCHER_LAST_TOTAL') === true) {
+            if ((bool) Configuration::get('ORDERVOUCHER_LAST_TOTAL') === true) {
                 $cart_rule->reduction_amount = $percent_rule;
             } else {
                 $cart_rule->reduction_amount = Configuration::get('ORDERVOUCHER_AMOUNT');
@@ -576,7 +566,7 @@ class Everpsvoucheronorder extends Module
         }
         $cart_rule->highlight = 1;
         if (Configuration::get('ORDERVOUCHER_TAX')
-            && in_array((int)$country->id_zone, $allowedTaxZones)
+            && in_array((int) $country->id_zone, $allowedTaxZones)
         ) {
             $cart_rule->reduction_tax = 1;
         }
@@ -585,21 +575,21 @@ class Everpsvoucheronorder extends Module
         $languages = Language::getLanguages(true);
 
         foreach ($languages as $language) {
-            $cart_rule->name[(int)$language['id_lang']] = $voucher_code;
+            $cart_rule->name[(int) $language['id_lang']] = $voucher_code;
         }
 
         $contains_categories = is_array($categories) && count($categories);
         if ($contains_categories) {
             $cart_rule->product_restriction = 1;
         }
-        $cart_rule->minimum_amount_currency = (int)Configuration::get('PS_CURRENCY_DEFAULT');
+        $cart_rule->minimum_amount_currency = (int) Configuration::get('PS_CURRENCY_DEFAULT');
         $cart_rule->add();
 
         //Restrict cartRules with categories
         if ($contains_categories) {
             //Creating rule group
-            $id_cart_rule = (int)$cart_rule->id;
-            $sql = "INSERT INTO "._DB_PREFIX_."cart_rule_product_rule_group (
+            $id_cart_rule = (int) $cart_rule->id;
+            $sql = "INSERT INTO " . _DB_PREFIX_ . "cart_rule_product_rule_group (
                 id_cart_rule,
                 quantity
             ) VALUES (
@@ -607,10 +597,10 @@ class Everpsvoucheronorder extends Module
                 1
             )";
             Db::getInstance()->execute($sql);
-            $id_group = (int)Db::getInstance()->Insert_ID();
+            $id_group = (int) Db::getInstance()->Insert_ID();
 
             //Creating product rule
-            $sql = "INSERT INTO "._DB_PREFIX_."cart_rule_product_rule (
+            $sql = "INSERT INTO " . _DB_PREFIX_ . "cart_rule_product_rule (
                 id_product_rule_group,
                 type
             ) VALUES (
@@ -618,33 +608,33 @@ class Everpsvoucheronorder extends Module
                 'categories'
             )";
             Db::getInstance()->execute($sql);
-            $id_product_rule = (int)Db::getInstance()->Insert_ID();
+            $id_product_rule = (int) Db::getInstance()->Insert_ID();
 
             //Creating restrictions
-            $values = array();
+            $values = [];
             foreach ($categories as $category) {
-                $category = (int)$category;
+                $category = (int) $category;
                 $values[] = "('$id_product_rule', '$category')";
             }
             $values = implode(',', $values);
-            $sql = "INSERT INTO "._DB_PREFIX_."cart_rule_product_rule_value (id_product_rule, id_item) VALUES $values";
+            $sql = "INSERT INTO " . _DB_PREFIX_ . "cart_rule_product_rule_value (id_product_rule, id_item) VALUES $values";
             Db::getInstance()->execute($sql);
         }
         $currency = new Currency(
-            (int)Configuration::get('PS_CURRENCY_DEFAULT')
+            (int) Configuration::get('PS_CURRENCY_DEFAULT')
         );
 
-        if ((int)Configuration::get('ORDERVOUCHER_PERCENT')) {
-            $reduction = Configuration::get('ORDERVOUCHER_AMOUNT').'%';
+        if ((int) Configuration::get('ORDERVOUCHER_PERCENT')) {
+            $reduction = Configuration::get('ORDERVOUCHER_AMOUNT') . '%';
         } else {
-            $reduction = Configuration::get('ORDERVOUCHER_AMOUNT').''.$currency->sign;
+            $reduction = Configuration::get('ORDERVOUCHER_AMOUNT') . '' . $currency->sign;
         }
         if ((bool)Configuration::get('ORDERVOUCHER_LAST_TOTAL') === true) {
-            $reduction = $cart_rule->reduction_amount.''.$currency->sign;
+            $reduction = $cart_rule->reduction_amount . '' . $currency->sign;
         }
-        $mini_amount = (float)Configuration::get('ORDERVOUCHER_MINIMAL');
+        $mini_amount = (float) Configuration::get('ORDERVOUCHER_MINIMAL');
         $date_to = strftime('%d-%m-%Y', strtotime($cart_rule->date_to));
-        if ((bool)Configuration::get('ORDERVOUCHER_MAIL') === true) {
+        if ((bool) Configuration::get('ORDERVOUCHER_MAIL') === true) {
             Mail::Send(
                 (int)(Configuration::get('PS_LANG_DEFAULT')), // defaut language id
                 'everpsvoucheronorder', // email template file to be use
@@ -655,23 +645,23 @@ class Everpsvoucheronorder extends Module
                     '{voucher_num}' => $voucher_code, // email content
                     '{voucher_amount}' => $reduction,
                     '{voucher_date}' => $date_to,
-                    '{mini_amount}' => $mini_amount.''.$currency->sign
+                    '{mini_amount}' => $mini_amount . '' . $currency->sign
                 ),
                 $customer->email, // receiver email
-                $customer->firstname.' '.$customer->lastname, //receiver name
+                $customer->firstname . ' ' . $customer->lastname, //receiver name
                 Configuration::get('PS_SHOP_EMAIL'), //from email address
                 Configuration::get('PS_SHOP_NAME'),  //from name
                 null,
                 null,
-                dirname(__FILE__).'/mails/'
+                dirname(__FILE__) . '/mails/'
             );
         }
         // Save first voucher
         $order_voucher = new EverPsVoucherOnOrderClass();
-        $order_voucher->id_customer = (int)$customer->id;
-        $order_voucher->id_order = (int)$id_order;
-        $order_voucher->email = (string)$customer->email;
-        $order_voucher->voucher_code = (string)$voucher_code;
+        $order_voucher->id_customer = (int) $customer->id;
+        $order_voucher->id_order = (int) $id_order;
+        $order_voucher->email = (string) $customer->email;
+        $order_voucher->voucher_code = (string) $voucher_code;
         return $order_voucher->save();
     }
 }
