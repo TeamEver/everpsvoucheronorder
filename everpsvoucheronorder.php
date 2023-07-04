@@ -23,7 +23,7 @@ class Everpsvoucheronorder extends Module
     {
         $this->name = 'everpsvoucheronorder';
         $this->tab = 'pricing_promotion';
-        $this->version = '2.2.4';
+        $this->version = '2.2.5';
         $this->author = 'Team Ever';
         $this->need_instance = 0;
         $this->bootstrap = true;
@@ -365,8 +365,8 @@ class Everpsvoucheronorder extends Module
             'ORDERVOUCHER_ENABLE' => Configuration::get('ORDERVOUCHER_ENABLE'),
             'ORDERVOUCHER_MAIL' => Configuration::get('ORDERVOUCHER_MAIL'),
             'ORDERVOUCHER_ZONES_TAX[]' => json_decode(Configuration::get('ORDERVOUCHER_ZONES_TAX')),
-            'ORDERVOUCHER_DETAILS' => Configuration::getConfigInMultipleLangs('ORDERVOUCHER_DETAILS'),
-            'ORDERVOUCHER_PREFIX' => Configuration::getConfigInMultipleLangs('ORDERVOUCHER_PREFIX'),
+            'ORDERVOUCHER_DETAILS' => self::getConfigInMultipleLangs('ORDERVOUCHER_DETAILS'),
+            'ORDERVOUCHER_PREFIX' => self::getConfigInMultipleLangs('ORDERVOUCHER_PREFIX'),
             'ORDERVOUCHER_CATEGORY' => Tools::getValue(
                 'ORDERVOUCHER_CATEGORY',
                 json_decode(
@@ -515,8 +515,8 @@ class Everpsvoucheronorder extends Module
 
     public function createFirstVoucher($id_customer, $id_order)
     {
-        $description = Configuration::getConfigInMultipleLangs('ORDERVOUCHER_DETAILS');
-        $prefixx = Configuration::getConfigInMultipleLangs('ORDERVOUCHER_PREFIX');
+        $description = self::getConfigInMultipleLangs('ORDERVOUCHER_DETAILS');
+        $prefixx = self::getConfigInMultipleLangs('ORDERVOUCHER_PREFIX');
         $prefix = $prefixx[(int) $this->context->language->id];
         $allowedTaxZones = json_decode(Configuration::get('ORDERVOUCHER_ZONES_TAX'));
         $customer = new Customer((int) $id_customer);
@@ -663,5 +663,24 @@ class Everpsvoucheronorder extends Module
         $order_voucher->email = (string) $customer->email;
         $order_voucher->voucher_code = (string) $voucher_code;
         return $order_voucher->save();
+    }
+
+    /**
+     * Get a single configuration value (in multiple languages).
+     * PS 1.7 backward compatibility
+     * @param string $key Configuration Key
+     * @param int $idShopGroup Shop Group ID
+     * @param int $idShop Shop ID
+     *
+     * @return array Values in multiple languages
+     */
+    public static function getConfigInMultipleLangs($key, $idShopGroup = null, $idShop = null)
+    {
+        $resultsArray = [];
+        foreach (Language::getIDs() as $idLang) {
+            $resultsArray[$idLang] = Configuration::get($key, $idLang, $idShopGroup, $idShop);
+        }
+
+        return $resultsArray;
     }
 }
